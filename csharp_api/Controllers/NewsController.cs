@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace csharp_api.Controllers
 {
@@ -13,23 +14,20 @@ namespace csharp_api.Controllers
     public class NewsController : ControllerBase
     {
         private readonly HttpClient _httpClient;
+        private readonly string _apiKey;
 
-        public NewsController()
+        public NewsController(IConfiguration configuration)
         {
             _httpClient = new HttpClient();
+            _apiKey = configuration["ApiKey"];
         }
 
         [HttpGet("{news_source}/full-list")]
         public async Task<IActionResult> GetFullList(string news_source)
         {
-            if (!Request.Headers.TryGetValue("Authorization", out var apiKey) || string.IsNullOrEmpty(apiKey))
-            {
-                return Unauthorized(new { message = "Error: Invalid API Key" });
-            }
-
             var url = $"https://www.jblanked.com/news/api/{news_source}/full-list/";
             var request = new HttpRequestMessage(HttpMethod.Get, url);
-            request.Headers.Add("Authorization", apiKey.ToString());
+            request.Headers.Add("Authorization", $"Api-Key {_apiKey}");
 
             var response = await _httpClient.SendAsync(request);
 
@@ -63,14 +61,9 @@ namespace csharp_api.Controllers
 
         private async Task<IActionResult> ProxyToJBlankedAPI(string news_source, string endpoint)
         {
-            if (!Request.Headers.TryGetValue("Authorization", out var apiKey) || string.IsNullOrEmpty(apiKey))
-            {
-                return Unauthorized(new { message = "Error: Invalid API Key" });
-            }
-
             var url = $"https://www.jblanked.com/news/api/{news_source}/{endpoint}/";
             var request = new HttpRequestMessage(HttpMethod.Get, url);
-            request.Headers.Add("Authorization", apiKey.ToString());
+            request.Headers.Add("Authorization", $"Api-Key {_apiKey}");
 
             var response = await _httpClient.SendAsync(request);
 
@@ -87,14 +80,9 @@ namespace csharp_api.Controllers
         [HttpPost("gpt")]
         public async Task<IActionResult> Gpt([FromBody] GptRequest request)
         {
-            if (!Request.Headers.TryGetValue("Authorization", out var apiKey) || string.IsNullOrEmpty(apiKey))
-            {
-                return Unauthorized(new { message = "Error: Invalid API Key" });
-            }
-
             var url = "https://www.jblanked.com/news/api/gpt/";
             var httpRequest = new HttpRequestMessage(HttpMethod.Post, url);
-            httpRequest.Headers.Add("Authorization", apiKey.ToString());
+            httpRequest.Headers.Add("Authorization", $"Api-Key {_apiKey}");
             httpRequest.Content = new StringContent(JsonSerializer.Serialize(request), System.Text.Encoding.UTF8, "application/json");
 
             var response = await _httpClient.SendAsync(httpRequest);
@@ -112,14 +100,9 @@ namespace csharp_api.Controllers
         [HttpGet("gpt/status/{task_id}")]
         public async Task<IActionResult> GetGptStatus(string task_id)
         {
-            if (!Request.Headers.TryGetValue("Authorization", out var apiKey) || string.IsNullOrEmpty(apiKey))
-            {
-                return Unauthorized(new { message = "Error: Invalid API Key" });
-            }
-
             var url = $"https://www.jblanked.com/news/api/gpt/status/{task_id}/";
             var request = new HttpRequestMessage(HttpMethod.Get, url);
-            request.Headers.Add("Authorization", apiKey.ToString());
+            request.Headers.Add("Authorization", $"Api-Key {_apiKey}");
 
             var response = await _httpClient.SendAsync(request);
 

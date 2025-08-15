@@ -13,6 +13,23 @@ This library is a comprehensive wrapper for JBlanked's News API. It leverages th
 
 The C# .NET API provides a backend service that proxies requests to the JBlanked News API. To use it, you will need to run the API project and make HTTP requests to the endpoints it exposes.
 
+### Configuration
+
+Before running the API, you need to configure your JBlanked API key in the `csharp_api/appsettings.json` file. Replace `"YOUR_API_KEY_HERE"` with your actual API key.
+
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "ApiKey": "YOUR_API_KEY_HERE"
+}
+```
+
 ### Running the API
 
 1.  Navigate to the `csharp_api` directory.
@@ -20,8 +37,6 @@ The C# .NET API provides a backend service that proxies requests to the JBlanked
 3.  The API will be available at `https://localhost:5001` (or a similar address).
 
 ### API Endpoints
-
-All endpoints require an `Authorization` header with your API key from `https://www.jblanked.com/profile/`.
 
 - `GET /news/api/{news_source}/full-list/`: Retrieves the full list of news events.
 - `GET /news/api/{news_source}/calendar/`: Retrieves the calendar of news events.
